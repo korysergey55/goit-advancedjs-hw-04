@@ -9,7 +9,7 @@ const formReff = document.querySelector('#search-form')
 const galeryReff = document.querySelector('.gallery')
 const loadMoreBtnReff = document.querySelector('.load-more')
 
-new SimpleLightbox('.gallery a', { captions: true, captionDelay: 250 });
+let lightbox = new SimpleLightbox('.gallery a', { captions: true, captionDelay: 250 });
 
 let formItems = {}
 let page = 1
@@ -27,6 +27,7 @@ async function handleSubmit(evt) {
 
   const images = await fetchImages(formItems.searchQuery, page)
   createMarcup(images)
+  lightbox.refresh()
   formReff.reset()
 }
 
@@ -103,6 +104,7 @@ async function handleLoadMore() {
   page += 1
   const images = await fetchImages(formItems.searchQuery, page)
   createMarcup(images)
+  lightbox.refresh()
   if (images.hits.length < per_page) {
     loadMoreBtnReff.classList.add('visually-hidden')
     iziToast.show({

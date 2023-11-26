@@ -21,6 +21,9 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+body{
+   margin: 0;
+  }
 
 .visually-hidden {
   position: absolute;
@@ -35,8 +38,18 @@
   overflow: hidden;
 }
 .search-form{
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
   margin-bottom: 20px;
-}
+  padding: 10px 0 ;
+  background-color:#1677ff;
+  }
+ .formInput{
+  width: 200px;
+  height: 20px;
+  outline: transparent;
+ }
 .gallery{
   display: flex;
   justify-content: center;
@@ -51,7 +64,7 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 .gallery__item:hover{
-   transform: scale(1.1);
+   /* transform: scale(1.1); */
 }
 .gallery__image{
   width: 350px;

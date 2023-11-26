@@ -5,7 +5,8 @@ const API_KEY = '21698474-fb36d7b3400c91ab3d227d6db'
 
 export const per_page = 40
 
-export const fetchImages = async (query = '', page = 1) => {
+export const fetchImages = async (query, page = 1) => {
+  if (!query) return
   const params = new URLSearchParams({
     q: query,
     image_type: 'photo',
