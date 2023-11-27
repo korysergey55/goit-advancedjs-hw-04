@@ -28,41 +28,48 @@ formReff.addEventListener('submit', handleSubmit)
 loadMoreBtnReff.addEventListener('click', handleLoadMore)
 
 async function handleSubmit(evt) {
-  galeryReff.innerHTML = ''
   evt.preventDefault()
+  galeryReff.innerHTML = ''
+
   const formData = new FormData(evt.currentTarget)
   formData.forEach((value, key) => {
-    formItems[key] = value
+    formItems[key] = value.trim()
   })
 
-  const images = await fetchImages(formItems.searchQuery, page)
-  createMarcup(images)
-  lightbox.refresh()
   formReff.reset()
-}
+  page = 1
 
-async function createMarcup(data) {
-  const { hits, total } = data
-  console.log(data)
-  if (!hits.length) {
+  const images = await fetchImages(formItems.searchQuery, page)
+  if (!images || !images.hits.length) {
     iziToast.show({
       title: '',
       color: 'red',
-      position: 'topRight',
-      message: "Sorry, there are no images matching your search query. Please try again."
+      position: 'topCenter',
+      message: `Sorry, there are no images matching your search query. Please try again.`
     });
-    // loadMoreBtnReff.classList.add('visually-hidden')
     return
   }
-  if (hits.length >= per_page) {
+
+  if (images.totalHits > 0) {
     iziToast.show({
       title: '',
       color: 'green',
       position: 'topCenter',
-      message: `Hooray! We found totalHits images ${total}`
+      message: `Hooray! We found totalHits images ${images.totalHits}`
     });
   }
 
+  if (images.hits.length >= per_page) {
+    loadMoreBtnReff.classList.remove('visually-hidden')
+  }
+
+  createMarcup(images)
+  lightbox.refresh()
+}
+
+async function createMarcup(data) {
+  if (!data) return
+  const { hits } = data
   const marcup = hits.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => (
     `
     <li class='gallery__item'>
@@ -97,9 +104,7 @@ async function createMarcup(data) {
     </li>
   `
   )).join('')
-  // galeryReff.innerHTML = marcup
   galeryReff.insertAdjacentHTML('beforeend', marcup)
-  loadMoreBtnReff.classList.remove('visually-hidden')
 }
 
 async function handleLoadMore() {
@@ -120,18 +125,18 @@ async function handleLoadMore() {
   const { height: cardHeight } = document
     .querySelector(".gallery")
     .firstElementChild.getBoundingClientRect();
-
   window.scrollBy({
     top: cardHeight * 2,
     behavior: "smooth",
   });
 }
+
 async function handleLoadMoreObserver(entries) {
   entries.forEach(async (entry) => {
     if (entry.isIntersecting) {
       page += 1
       const images = await fetchImages(formItems.searchQuery, page)
-      if (images.hits.length < per_page) {
+      if (images?.hits.length < per_page) {
         iziToast.show({
           title: '',
           color: 'red',
@@ -143,14 +148,6 @@ async function handleLoadMoreObserver(entries) {
 
       createMarcup(images)
       lightbox.refresh()
-
-      const { height: cardHeight } = document
-        .querySelector(".gallery")
-        .firstElementChild.getBoundingClientRect();
-      window.scrollBy({
-        top: cardHeight * 2,
-        behavior: "smooth",
-      });
     }
   })
 }
