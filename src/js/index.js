@@ -8,8 +8,18 @@ import { per_page } from './api'
 const formReff = document.querySelector('#search-form')
 const galeryReff = document.querySelector('.gallery')
 const loadMoreBtnReff = document.querySelector('.load-more')
+const guardReff = document.querySelector('.js-guard')
 
 let lightbox = new SimpleLightbox('.gallery a', { captions: true, captionDelay: 250 });
+
+let options = {
+  root: document.querySelector("#scrollArea"),
+  rootMargin: "300px",
+  threshold: 1.0,
+};
+
+// let observer = new IntersectionObserver(handleLoadMoreObserver, options);
+// observer.observe(guardReff)
 
 let formItems = {}
 let page = 1
@@ -53,15 +63,7 @@ async function createMarcup(data) {
     });
   }
 
-  const marcup = hits.map(({
-    webformatURL,
-    largeImageURL,
-    tags,
-    likes,
-    views,
-    comments,
-    downloads
-  }) => (
+  const marcup = hits.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => (
     `
     <li class='gallery__item'>
       <div class="gallery__card">
@@ -123,4 +125,32 @@ async function handleLoadMore() {
     top: cardHeight * 2,
     behavior: "smooth",
   });
+}
+async function handleLoadMoreObserver(entries) {
+  entries.forEach(async (entry) => {
+    if (entry.isIntersecting) {
+      page += 1
+      const images = await fetchImages(formItems.searchQuery, page)
+      if (images.hits.length < per_page) {
+        iziToast.show({
+          title: '',
+          color: 'red',
+          position: 'topRight',
+          message: "We're sorry, but you've reached the end of search results."
+        });
+        return
+      }
+
+      createMarcup(images)
+      lightbox.refresh()
+
+      const { height: cardHeight } = document
+        .querySelector(".gallery")
+        .firstElementChild.getBoundingClientRect();
+      window.scrollBy({
+        top: cardHeight * 2,
+        behavior: "smooth",
+      });
+    }
+  })
 }
