@@ -30,6 +30,7 @@ loadMoreBtnReff.addEventListener('click', handleLoadMore)
 async function handleSubmit(evt) {
   evt.preventDefault()
   galeryReff.innerHTML = ''
+  loadMoreBtnReff.classList.add('visually-hidden')
 
   const formData = new FormData(evt.currentTarget)
   formData.forEach((value, key) => {
